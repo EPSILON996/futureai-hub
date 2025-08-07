@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
-# Absolute path SQLite DB (to avoid deployment issues)
+# Absolute path SQLite DB to avoid deployment issues
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
@@ -46,12 +46,10 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys (replace with environment variables or your keys)
+# API keys (replace these if you want to use environment variables)
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
- # Your provided NewsData.io key
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
-# Guardian API is disabled (no key / no calls)
 
 def clean_html_content(raw_html: str) -> str:
     if not raw_html:
@@ -66,18 +64,17 @@ def clean_html_content(raw_html: str) -> str:
     text = soup.get_text(separator='', strip=True)
     lines = [line.strip() for line in text.splitlines()]
     filtered_lines = []
-    last_was_empty = False
+    last_empty = False
     for line in lines:
         if line == '':
-            if not last_was_empty:
+            if not last_empty:
                 filtered_lines.append('')
-            last_was_empty = True
+            last_empty = True
         else:
             filtered_lines.append(line)
-            last_was_empty = False
+            last_empty = False
     return '\n'.join(filtered_lines)
 
-# Fetch articles from NewsAPI
 def fetch_newsapi_articles():
     url = f"https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey={NEWSAPI_KEY}"
     try:
@@ -95,15 +92,14 @@ def fetch_newsapi_articles():
             }
     except Exception as e:
         yield {
-            "title": f"Error NewsAPI: {str(e)}",
+            "title": f"Error NewsAPI: {e}",
             "summary": "",
             "body": "",
             "image_url": None,
             "source_url": None,
-            "source_name": "NewsAPI",
+            "source_name": "NewsAPI"
         }
 
-# Fetch articles from NewsData.io
 def fetch_newsdata_articles():
     url = f"https://newsdata.io/api/1/news?apikey={NEWSDATA_API_KEY}&category=technology,science&language=en"
     try:
@@ -121,15 +117,14 @@ def fetch_newsdata_articles():
             }
     except Exception as e:
         yield {
-            "title": f"Error NewsData.io: {str(e)}",
+            "title": f"Error NewsData.io: {e}",
             "summary": "",
             "body": "",
             "image_url": None,
             "source_url": None,
-            "source_name": "NewsData.io",
+            "source_name": "NewsData.io"
         }
 
-# Fetch articles from MediaStack
 def fetch_mediastack_articles():
     url = f"http://api.mediastack.com/v1/news?access_key={MEDIASTACK_KEY}&categories=technology,science&languages=en"
     try:
@@ -147,15 +142,16 @@ def fetch_mediastack_articles():
             }
     except Exception as e:
         yield {
-            "title": f"Error Mediastack: {str(e)}",
+            "title": f"Error Mediastack: {e}",
             "summary": "",
             "body": "",
             "image_url": None,
             "source_url": None,
-            "source_name": "MediaStack",
+            "source_name": "MediaStack"
         }
 
-# Import articles from enabled sources (NewsAPI, NewsData.io, MediaStack)
+# Guardian API disabled; no calls here
+
 def import_external_articles():
     added = 0
     for fetcher in [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles]:
@@ -179,7 +175,6 @@ def import_external_articles():
         db.session.commit()
     print(f"[Scheduler] Imported {added} new articles.")
 
-# Routes
 @app.route('/')
 def home():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
@@ -206,7 +201,7 @@ def new_post():
         )
         db.session.add(post)
         db.session.commit()
-        flash("New article published!", "success")
+        flash("Article successfully published!", "success")
         return redirect(url_for('home'))
     return render_template('new_post.html', form=form)
 
@@ -218,11 +213,11 @@ def search():
         posts = Post.query.filter(
             or_(
                 Post.title.ilike(f'%{query}%'),
-                Post.body.ilike(f'%{query}%')
+                Post.body.ilike(f'%{query}%'),
             )
         ).order_by(Post.timestamp.desc()).all()
     recent_posts = Post.query.order_by(Post.timestamp.desc()).limit(5).all()
-    return render_template('search.html', posts=posts, query=query, recent_posts=recent_posts)
+    return render_template("search.html", posts=posts, query=query, recent_posts=recent_posts)
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -240,7 +235,6 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# Initialize DB and import articles at startup
 with app.app_context():
     db.create_all()
     import_external_articles()
@@ -249,4 +243,3 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
-
