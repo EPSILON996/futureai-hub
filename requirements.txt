@@ -2,7 +2,11 @@ Flask
 Flask-SQLAlchemy
 Flask-WTF
 WTForms
+Flask-Login
 requests
 APScheduler
 beautifulsoup4
 gunicorn
+Werkzeug
+email-validator
+Flask-Admin
