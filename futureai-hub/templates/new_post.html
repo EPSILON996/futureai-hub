@@ -11,7 +11,7 @@
 
       <div class="mb-3">
         {{ form.title.label(class="form-label") }}
-        {{ form.title(class="form-control", placeholder="Enter article title", aria_describedby="titleHelp") }}
+        {{ form.title(class="form-control", placeholder="Enter article title", aria_describedby="titleHelp", aria_invalid="true" if form.title.errors else "false") }}
         <div id="titleHelp" class="form-text">The title of the article (max 200 characters).</div>
         {% for e in form.title.errors %}
           <div class="text-danger small">{{ e }}</div>
@@ -20,7 +20,7 @@
 
       <div class="mb-3">
         {{ form.summary.label(class="form-label") }}
-        {{ form.summary(class="form-control", placeholder="Optional summary", rows="3", aria_describedby="summaryHelp") }}
+        {{ form.summary(class="form-control", placeholder="Optional summary", rows="3", aria_describedby="summaryHelp", aria_invalid="true" if form.summary.errors else "false") }}
         <div id="summaryHelp" class="form-text">A brief summary of the article (max 300 characters).</div>
         {% for e in form.summary.errors %}
           <div class="text-danger small">{{ e }}</div>
@@ -29,7 +29,7 @@
 
       <div class="mb-3">
         {{ form.image_url.label(class="form-label") }}
-        {{ form.image_url(class="form-control", placeholder="Optional image URL", aria_describedby="imageHelp") }}
+        {{ form.image_url(class="form-control", placeholder="Optional image URL", aria_describedby="imageHelp", aria_invalid="true" if form.image_url.errors else "false") }}
         <div id="imageHelp" class="form-text">URL of an image to display with the article.</div>
         {% for e in form.image_url.errors %}
           <div class="text-danger small">{{ e }}</div>
@@ -38,7 +38,7 @@
 
       <div class="mb-3">
         {{ form.source_url.label(class="form-label") }}
-        {{ form.source_url(class="form-control", placeholder="Optional source URL", aria_describedby="sourceHelp") }}
+        {{ form.source_url(class="form-control", placeholder="Optional source URL", aria_describedby="sourceHelp", aria_invalid="true" if form.source_url.errors else "false") }}
         <div id="sourceHelp" class="form-text">URL of the original source of the article.</div>
         {% for e in form.source_url.errors %}
           <div class="text-danger small">{{ e }}</div>
@@ -47,7 +47,7 @@
 
       <div class="mb-4">
         {{ form.body.label(class="form-label") }}
-        {{ form.body(class="form-control", placeholder="Enter full article content here", rows="10", aria_describedby="bodyHelp") }}
+        {{ form.body(class="form-control", placeholder="Enter full article content here", rows="10", aria_describedby="bodyHelp", aria_invalid="true" if form.body.errors else "false") }}
         <div id="bodyHelp" class="form-text">Full content of the article.</div>
         {% for e in form.body.errors %}
           <div class="text-danger small">{{ e }}</div>
