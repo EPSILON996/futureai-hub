@@ -15,13 +15,13 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
-# Database setup
+# Absolute path for SQLite DB
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Security - Secret Key for sessions and CSRF
+# Secret key for session and CSRF
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -30,7 +30,7 @@ db = SQLAlchemy(app)
 def inject_now():
     return {'datetime': datetime}
 
-# Database models
+# Models
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -56,18 +56,18 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys from environment variables or fallback
+# API keys loaded securely or fallbacks
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
 
-# Gmail SMTP configuration (use env variables in production!)
+# Gmail SMTP configuration (store EMAIL_ADDRESS, EMAIL_PASSWORD in env ideally)
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'geopolitics.finance@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'jgjpzjngtjfefueh')  # Remove spaces!
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'jgjpzjngtjfefueh')  # Remove spaces if any
 
-# Utility: Clean HTML content for plain text preserving paragraphs and line breaks
+# HTML content cleaner preserving paragraphs and line breaks
 def clean_html_content(raw_html: str) -> str:
     if not raw_html:
         return ""
@@ -80,20 +80,19 @@ def clean_html_content(raw_html: str) -> str:
         p.insert_after("\n\n")
     text = soup.get_text(separator='', strip=True)
     lines = [line.strip() for line in text.splitlines()]
-    filtered_lines = []
-    last_was_empty = False
+    filtered = []
+    last_empty = False
     for line in lines:
         if line == '':
-            if not last_was_empty:
-                filtered_lines.append('')
-            last_was_empty = True
+            if not last_empty:
+                filtered.append('')
+            last_empty = True
         else:
-            filtered_lines.append(line)
-            last_was_empty = False
-    return '\n'.join(filtered_lines)
+            filtered.append(line)
+            last_empty = False
+    return '\n'.join(filtered)
 
-# External news fetchers (NewsAPI, NewsData.io, MediaStack)
-
+# News API fetch functions
 def fetch_newsapi_articles():
     url = f"https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey={NEWSAPI_KEY}"
     try:
@@ -107,18 +106,10 @@ def fetch_newsapi_articles():
                 "body": clean_html_content(art.get("content") or art.get("description")),
                 "image_url": art.get("urlToImage"),
                 "source_url": art.get("url"),
-                "source_name": "NewsAPI",
+                "source_name": "NewsAPI"
             }
     except Exception as e:
         print(f"NewsAPI fetch error: {e}")
-        yield {
-            "title": "Error fetching NewsAPI articles",
-            "summary": "",
-            "body": "",
-            "image_url": None,
-            "source_url": None,
-            "source_name": "NewsAPI",
-        }
 
 def fetch_newsdata_articles():
     url = f"https://newsdata.io/api/1/news?apikey={NEWSDATA_API_KEY}&category=technology,science&language=en"
@@ -133,18 +124,10 @@ def fetch_newsdata_articles():
                 "body": clean_html_content(art.get("content") or art.get("description")),
                 "image_url": art.get("image_url") or art.get("image"),
                 "source_url": art.get("link"),
-                "source_name": "NewsData.io",
+                "source_name": "NewsData.io"
             }
     except Exception as e:
         print(f"NewsData.io fetch error: {e}")
-        yield {
-            "title": "Error fetching NewsData.io articles",
-            "summary": "",
-            "body": "",
-            "image_url": None,
-            "source_url": None,
-            "source_name": "NewsData.io",
-        }
 
 def fetch_mediastack_articles():
     url = f"http://api.mediastack.com/v1/news?access_key={MEDIASTACK_KEY}&categories=technology,science&languages=en"
@@ -159,24 +142,20 @@ def fetch_mediastack_articles():
                 "body": clean_html_content(art.get("description")),
                 "image_url": art.get("image"),
                 "source_url": art.get("url"),
-                "source_name": "MediaStack",
+                "source_name": "MediaStack"
             }
     except Exception as e:
         print(f"MediaStack fetch error: {e}")
-        yield {
-            "title": "Error fetching MediaStack articles",
-            "summary": "",
-            "body": "",
-            "image_url": None,
-            "source_url": None,
-            "source_name": "MediaStack",
-        }
 
-# Import and store articles to DB
+# Import articles from sources into DB
 def import_external_articles():
     added = 0
     for fetcher in [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles]:
+        if not fetcher:
+            continue
         for art in fetcher():
+            if not art:
+                continue
             url = art.get('source_url')
             if not url or Post.query.filter_by(source_url=url).first():
                 continue
@@ -188,7 +167,7 @@ def import_external_articles():
                 source_url=url,
                 timestamp=datetime.utcnow(),
                 is_imported=True,
-                source_name=art.get('source_name', 'Unknown'),
+                source_name=art.get('source_name', 'Unknown')
             )
             db.session.add(post)
             added += 1
@@ -196,8 +175,7 @@ def import_external_articles():
         db.session.commit()
     print(f"[Scheduler] Imported {added} new articles.")
 
-# Email sending functions
-
+# Email sending helpers
 def send_email(to_email, subject, body):
     msg = MIMEMultipart()
     msg['From'] = EMAIL_ADDRESS
@@ -225,59 +203,80 @@ def send_welcome_email(to_email):
     """
     send_email(to_email, subject, body)
 
-# Flask Routes
+def send_newsletter():
+    latest_posts = Post.query.order_by(Post.timestamp.desc()).limit(5).all()
+    subscribers = Subscriber.query.all()
+    if not subscribers or not latest_posts:
+        print("No subscribers or posts to send.")
+        return
 
-@app.route("/")
+    html_content = "<h2>Latest AI & Tech News from FutureAI Hub</h2><ul>"
+    for post in latest_posts:
+        link = url_for('post_detail', post_id=post.id, _external=True)
+        html_content += f"<li><a href='{link}'>{post.title}</a> - {post.timestamp.strftime('%b %d')}</li>"
+    html_content += "</ul><p>Thank you for subscribing!</p>"
+
+    subject = "FutureAI Hub - Latest Newsletter"
+
+    for subscriber in subscribers:
+        send_email(subscriber.email, subject, html_content)
+
+# Routes
+@app.route('/')
 def home():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    recent_posts = Post.query.order_by(Post.timestamp.desc()).all()
+    recent_posts = posts  # showing all recent posts, no limit
     return render_template("home.html", posts=posts, recent_posts=recent_posts)
 
-@app.route("/post/<int:post_id>")
+@app.route('/post/<int:post_id>')
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template("post.html", post=post)
 
-@app.route("/admin/new", methods=["GET", "POST"])
+@app.route('/admin/new', methods=['GET', 'POST'])
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(
-            title=form.title.data.strip(),
-            summary=form.summary.data.strip(),
-            image_url=form.image_url.data.strip() if form.image_url.data else None,
-            body=form.body.data.strip(),
-            source_url=form.source_url.data.strip() if form.source_url.data else None,
-            is_imported=bool(form.source_url.data),
-            source_name="Manual",
-        )
-        db.session.add(post)
-        db.session.commit()
-        flash("New article published!", "success")
-        return redirect(url_for("home"))
+        try:
+            post = Post(
+                title=form.title.data.strip(),
+                summary=form.summary.data.strip(),
+                image_url=form.image_url.data.strip() if form.image_url.data else None,
+                body=form.body.data.strip(),
+                source_url=form.source_url.data.strip() if form.source_url.data else None,
+                is_imported=bool(form.source_url.data),
+                source_name="Manual"
+            )
+            db.session.add(post)
+            db.session.commit()
+            flash("New article published!", "success")
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating article: {str(e)}", "danger")
     return render_template("new_post.html", form=form)
 
-@app.route("/search")
+@app.route('/search')
 def search():
-    query = request.args.get("q", "").strip()
+    query = request.args.get('q', '').strip()
     posts = []
     if query:
         posts = Post.query.filter(
             or_(
                 Post.title.ilike(f"%{query}%"),
-                Post.body.ilike(f"%{query}%"),
+                Post.body.ilike(f"%{query}%")
             )
         ).order_by(Post.timestamp.desc()).all()
     recent_posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template("search.html", posts=posts, query=query, recent_posts=recent_posts)
+    return render_template('search.html', posts=posts, query=query, recent_posts=recent_posts)
 
-@app.route("/subscribe", methods=["POST"])
+@app.route('/subscribe', methods=['POST'])
 def subscribe():
-    email = request.form.get("email", "").strip()
+    email = request.form.get('email', '').strip()
     if not email:
-        return jsonify({"status": "fail", "message": "Please provide an email address."}), 400
+        return jsonify({'status': 'fail', 'message': 'Please provide an email address.'}), 400
     if Subscriber.query.filter_by(email=email).first():
-        return jsonify({"status": "fail", "message": "This email is already subscribed."}), 400
+        return jsonify({'status': 'fail', 'message': 'This email is already subscribed.'}), 400
 
     subscriber = Subscriber(email=email)
     db.session.add(subscriber)
@@ -285,30 +284,31 @@ def subscribe():
 
     send_welcome_email(email)
 
-    return jsonify({"status": "success", "message": "Subscription successful! Please check your email."}), 200
+    return jsonify({'status': 'success', 'message': 'Subscription successful! Please check your inbox.'}), 200
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html"), 404
+    return render_template('404.html'), 404
 
-# Scheduler to import articles every 6 hours
 def start_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         func=import_external_articles,
-        trigger="interval",
+        trigger='interval',
         hours=6,
-        id="import_articles_task",
+        id='import_articles_task',
         replace_existing=True,
     )
+    # Optionally add a scheduled newsletter sending job (e.g., daily)
+    # scheduler.add_job(func=send_newsletter, trigger='cron', hour=8, id='send_newsletter_task')
     scheduler.start()
-    print("[Scheduler] Article updater started.")
+    print("[Scheduler] Scheduler started.")
 
 with app.app_context():
     db.create_all()
     import_external_articles()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
