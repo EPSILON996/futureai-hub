@@ -40,7 +40,7 @@ DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '12345678')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
 
@@ -113,7 +113,7 @@ class SignupForm(FlaskForm):
 # -----------------------------------------------------------
 # API keys and SMTP credentials
 
-NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
+NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
 
@@ -149,21 +149,21 @@ def clean_html_content(raw_html: str) -> str:
             last_empty = False
     return '\n'.join(filtered_lines)
 
-# --- Fetch news articles from APIs (fill with your existing working code) ---
+# --- Placeholders for your existing news fetch functions ---
 def fetch_newsapi_articles():
-    # Fill your prior fetch_newsapi_articles code here
+    # Insert your working code for fetching from NewsAPI here
     pass
 
 def fetch_newsdata_articles():
-    # Fill your prior fetch_newsdata_articles code here
+    # Insert your working code for fetching from NewsData.io here
     pass
 
 def fetch_mediastack_articles():
-    # Fill your prior fetch_mediastack_articles code here
+    # Insert your working code for fetching from MediaStack here
     pass
 
 def import_external_articles():
-    # Fill your prior import_external_articles code here
+    # Insert your existing import_articles logic here
     pass
 
 # -----------------------------------------------------------
@@ -389,4 +389,3 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)  # Turn off debug=True in production
-
