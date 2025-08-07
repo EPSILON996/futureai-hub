@@ -12,13 +12,13 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
-# Absolute path SQLite DB (avoid deployment path issues)
+# Absolute path SQLite DB to avoid deployment issues
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Secret Key for sessions and CSRF protection; set securely in production environment
+# Secret key for sessions and CSRF protection
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -46,31 +46,32 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys loaded from environment variables (replace with your keys)
+# API keys loaded securely from environment variables
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_37394367ea33be6bbe3bd4d040f6f79d3a0d')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '4fc7273b6b7b544697d35a6817135fdf')
 GUARDIAN_KEY = os.environ.get('GUARDIAN_KEY', 'd53ef06b-46c1-4273-8c83-77c51dc07696')
 
 def clean_html_content(raw_html: str) -> str:
+    """Clean HTML input preserving paragraphs and line breaks."""
     if not raw_html:
         return ""
     soup = BeautifulSoup(raw_html, "html.parser")
 
-    # Remove unwanted tags fully
+    # Remove unwanted tags
     for tag in soup(['script', 'style', 'iframe', 'noscript', 'header', 'footer']):
         tag.decompose()
 
-    # Replace <br> tags with newline chars
+    # Replace <br> tags with newline characters
     for br in soup.find_all("br"):
         br.replace_with("\n")
-    # Append extra newlines after paragraphs for spacing
+    # Insert double newlines after paragraphs for spacing
     for p in soup.find_all("p"):
         p.insert_after("\n\n")
 
     text = soup.get_text(separator='', strip=True)
 
-    # Collapse multiple empty lines down to a single one
+    # Collapse multiple empty lines
     lines = [line.strip() for line in text.splitlines()]
     filtered_lines = []
     last_was_empty = False
@@ -93,7 +94,7 @@ def fetch_newsapi_articles():
         data = resp.json()
         for art in data.get('articles', []):
             yield {
-                "title": art.get("title")[:200] if art.get("title") else "Untitled",
+                "title": art.get("title", "Untitled")[:200],
                 "summary": clean_html_content(art.get("description")),
                 "body": clean_html_content(art.get("content") or art.get("description")),
                 "image_url": art.get("urlToImage"),
@@ -111,7 +112,7 @@ def fetch_newsdata_articles():
         data = resp.json()
         for art in data.get('results', []):
             yield {
-                "title": art.get("title", "")[:200] or "Untitled",
+                "title": art.get("title", "Untitled")[:200],
                 "summary": clean_html_content(art.get("description")),
                 "body": clean_html_content(art.get("content") or art.get("description")),
                 "image_url": art.get("image_url") or art.get("image"),
@@ -148,7 +149,7 @@ def fetch_guardian_articles():
         for art in data.get('response', {}).get('results', []):
             fields = art.get('fields', {})
             yield {
-                "title": art.get('webTitle', '')[:200] or "Untitled",
+                "title": art.get('webTitle', "Untitled")[:200],
                 "summary": clean_html_content(fields.get('trailText')),
                 "body": clean_html_content(fields.get('body') or fields.get('trailText')),
                 "image_url": fields.get('thumbnail'),
@@ -166,7 +167,7 @@ def import_external_articles():
             if not url or Post.query.filter_by(source_url=url).first():
                 continue
             post = Post(
-                title=art.get('title', 'Untitled'),
+                title=art.get('title', "Untitled"),
                 summary=art.get('summary') or '',
                 body=art.get('body') or '',
                 image_url=art.get('image_url'),
@@ -241,7 +242,6 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# On app startup, ensure DB tables exist and import articles once
 with app.app_context():
     db.create_all()
     import_external_articles()
