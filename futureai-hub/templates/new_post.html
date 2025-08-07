@@ -21,7 +21,7 @@
       <div class="mb-3">
         {{ form.summary.label(class="form-label") }}
         {{ form.summary(class="form-control", placeholder="Optional summary", rows="3", aria_describedby="summaryHelp") }}
-        <div id="summaryHelp" class="form-text">A brief summary to highlight the article (max 300 characters).</div>
+        <div id="summaryHelp" class="form-text">A brief summary of the article (max 300 characters).</div>
         {% for e in form.summary.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
@@ -39,7 +39,7 @@
       <div class="mb-3">
         {{ form.source_url.label(class="form-label") }}
         {{ form.source_url(class="form-control", placeholder="Optional source URL", aria_describedby="sourceHelp") }}
-        <div id="sourceHelp" class="form-text">URL of the original source of the article, if any.</div>
+        <div id="sourceHelp" class="form-text">URL of the original source of the article.</div>
         {% for e in form.source_url.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
