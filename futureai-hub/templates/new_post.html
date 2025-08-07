@@ -1,16 +1,18 @@
 {% extends "base.html" %}
+
 {% block title %}Publish New Article - FutureAI Hub{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-8 col-md-10">
     <h2 class="mb-4">Publish New Article</h2>
-    <form method="POST">
+    <form method="POST" novalidate>
       {{ form.hidden_tag() }}
 
       <div class="mb-3">
         {{ form.title.label(class="form-label") }}
-        {{ form.title(class="form-control", placeholder="Enter article title") }}
+        {{ form.title(class="form-control", placeholder="Enter article title", aria_describedby="titleHelp") }}
+        <div id="titleHelp" class="form-text">The title of the article (max 200 characters).</div>
         {% for e in form.title.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
@@ -18,7 +20,8 @@
 
       <div class="mb-3">
         {{ form.summary.label(class="form-label") }}
-        {{ form.summary(class="form-control", placeholder="Optional summary", rows="3") }}
+        {{ form.summary(class="form-control", placeholder="Optional summary", rows="3", aria_describedby="summaryHelp") }}
+        <div id="summaryHelp" class="form-text">A brief summary to highlight the article (max 300 characters).</div>
         {% for e in form.summary.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
@@ -26,7 +29,8 @@
 
       <div class="mb-3">
         {{ form.image_url.label(class="form-label") }}
-        {{ form.image_url(class="form-control", placeholder="Optional image URL") }}
+        {{ form.image_url(class="form-control", placeholder="Optional image URL", aria_describedby="imageHelp") }}
+        <div id="imageHelp" class="form-text">URL of an image to display with the article.</div>
         {% for e in form.image_url.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
@@ -34,7 +38,8 @@
 
       <div class="mb-3">
         {{ form.source_url.label(class="form-label") }}
-        {{ form.source_url(class="form-control", placeholder="Optional source URL") }}
+        {{ form.source_url(class="form-control", placeholder="Optional source URL", aria_describedby="sourceHelp") }}
+        <div id="sourceHelp" class="form-text">URL of the original source of the article, if any.</div>
         {% for e in form.source_url.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
@@ -42,7 +47,8 @@
 
       <div class="mb-4">
         {{ form.body.label(class="form-label") }}
-        {{ form.body(class="form-control", placeholder="Enter full article content here", rows="10") }}
+        {{ form.body(class="form-control", placeholder="Enter full article content here", rows="10", aria_describedby="bodyHelp") }}
+        <div id="bodyHelp" class="form-text">Full content of the article.</div>
         {% for e in form.body.errors %}
           <div class="text-danger small">{{ e }}</div>
         {% endfor %}
