@@ -57,7 +57,7 @@ body {
   border-radius: 1.3rem !important;
 }
 
-/* Sidebar styling */
+/* Sidebar styling (will be refined below for scroll/fixed fix) */
 .sidebar-section {
   background: #fff;
   border-radius: 1.3rem;
@@ -143,4 +143,96 @@ footer {
   0%   { text-shadow: 0 0 3px #f4e5b2, 0 0 8px #42d8e257;}
   70%  { text-shadow: 0 0 15px #ffe89f, 0 0 30px #23bfffaa;}
   100% { text-shadow: 0 0 7px #f4e5b2, 0 0 22px #77a6fa99;}
+}
+
+/* =========================== */
+/* === Added Fixed CSS Below === */
+/* =========================== */
+
+/* Article Font & Design Improvements */
+.article-body, .post-content {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #222;
+  padding: 1.2rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px #1656af08;
+}
+
+/* Headings in articles */
+.article-body h2, .post-content h2 {
+  font-size: 24px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #1256bf;
+}
+
+.article-body a, .post-content a {
+  color: #2065d2;
+  text-decoration: underline;
+}
+.article-body a:hover, .post-content a:hover {
+  color: #1656af;
+  text-decoration: none;
+}
+
+/* Two-Column Layout: Both Sides Scroll Naturally */
+.container {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 1rem;
+}
+
+/* Main content scrolls naturally */
+.main-content {
+  flex: 3;
+  min-width: 0; /* Prevent overflow */
+  overflow-y: auto;
+  max-height: 100vh;
+  padding-right: 1rem;
+}
+
+/* Sidebar scrolls naturally with page and is sticky */
+.sidebar-section {
+  flex: 1;
+  position: sticky;
+  top: 1.5rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 1.3rem;
+  box-shadow: 0 2px 14px #2d44a01a;
+  padding: 2rem 1.2rem 1rem 1.6rem;
+  margin-bottom: 2rem;
+}
+
+/* Optional: scrollbar style for sidebar */
+.sidebar-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-section::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Responsive fix: Sidebar margin on smaller screens */
+@media (max-width: 991px) {
+  .sidebar-section {
+    margin-top: 2rem;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .container {
+    flex-direction: column;
+  }
 }
