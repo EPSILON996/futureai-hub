@@ -213,7 +213,41 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+ <form id="subscribe-form" class="d-flex gap-2 justify-content-center" novalidate>
+  <input type="email" name="email" placeholder="Your email" class="form-control form-control-sm rounded-pill" required />
+  <button class="btn btn-warning btn-sm px-3 rounded-pill" type="submit">Subscribe</button>
+</form>
+<div id="subscribe-message" class="pt-2 small text-center"></div>
+
+<script>
+document.getElementById('subscribe-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const form = e.target;
+  const email = form.email.value;
+
+  fetch('/subscribe', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({email: email}),
+  })
+  .then(resp => resp.json())
+  .then(data => {
+    const messageDiv = document.getElementById('subscribe-message');
+    if(data.status === 'success'){
+      messageDiv.style.color = 'green';
+      form.reset();
+    } else {
+      messageDiv.style.color = 'red';
+    }
+    messageDiv.textContent = data.message;
+  })
+  .catch(() => {
+    document.getElementById('subscribe-message').textContent = 'An error occurred. Please try again.';
+  });
+});
+</script>
 
 </body>
 </html>
+
 
