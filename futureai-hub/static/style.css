@@ -14,7 +14,7 @@ body {
   backdrop-filter: blur(12px);
 }
 
-/* Hero section gradient background and styling */
+/* Hero section */
 .hero-gradient {
   background: linear-gradient(120deg, #1656af 70%, #6f42c1 98%);
   color: #fff;
@@ -49,6 +49,7 @@ body {
   box-shadow: 0 8px 36px #145c8b18;
   border: none;
   transition: box-shadow 0.13s ease-in-out;
+  background: #fff;
 }
 .card-wide:hover {
   box-shadow: 0 16px 50px #25499b2c;
@@ -57,8 +58,29 @@ body {
   border-radius: 1.3rem !important;
 }
 
-/* Sidebar styling (will be refined below for scroll/fixed fix) */
+/* --- FIXED: Main Layout --- */
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 1rem;
+}
+
+.main-content {
+  flex: 3;
+  min-width: 0;
+}
+
+/* Sidebar styles (now sticky & flex-friendly) */
 .sidebar-section {
+  flex: 1;
+  position: sticky;
+  top: 1.5rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
   background: #fff;
   border-radius: 1.3rem;
   box-shadow: 0 2px 14px #2d44a01a;
@@ -66,16 +88,72 @@ body {
   margin-bottom: 2rem;
 }
 
+/* Recent articles list more compact */
+.sidebar-section ul {
+  list-style-type: disc;
+  margin-left: 1.5em;
+  padding-left: 0;
+}
+.sidebar-section li {
+  margin-bottom: 0.75em;
+}
+.sidebar-section a {
+  color: #1656af;
+  text-decoration: none;
+}
+.sidebar-section a:hover {
+  text-decoration: underline;
+}
+
 /* Search input styling */
 .search {
   border-radius: 22px;
   background: #fafaff;
+  border: 1px solid #c6e0fe;
+  padding: 0.45rem 1rem;
+  font-size: 1rem;
 }
 
-/* Responsive adjustments for sidebar */
+/* Article Font & Design Improvements */
+.article-body, .post-content {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #222;
+  padding: 1.2rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px #1656af08;
+}
+
+.article-body h2, .article-body h3, .post-content h2, .post-content h3 {
+  font-size: 24px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #1256bf;
+}
+
+.article-body a, .post-content a {
+  color: #2065d2;
+  text-decoration: underline;
+}
+.article-body a:hover, .post-content a:hover {
+  color: #1656af;
+  text-decoration: none;
+}
+
+/* Responsive fix: mobile column stacking */
 @media (max-width: 991px) {
+  .main-layout {
+    flex-direction: column;
+  }
   .sidebar-section {
     margin-top: 2rem;
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 
@@ -145,94 +223,11 @@ footer {
   100% { text-shadow: 0 0 7px #f4e5b2, 0 0 22px #77a6fa99;}
 }
 
-/* =========================== */
-/* === Added Fixed CSS Below === */
-/* =========================== */
-
-/* Article Font & Design Improvements */
-.article-body, .post-content {
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 18px;
-  line-height: 1.7;
-  color: #222;
-  padding: 1.2rem 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 2px 16px #1656af08;
-}
-
-/* Headings in articles */
-.article-body h2, .post-content h2 {
-  font-size: 24px;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: #1256bf;
-}
-
-.article-body a, .post-content a {
-  color: #2065d2;
-  text-decoration: underline;
-}
-.article-body a:hover, .post-content a:hover {
-  color: #1656af;
-  text-decoration: none;
-}
-
-/* Two-Column Layout: Both Sides Scroll Naturally */
-.container {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 1rem;
-}
-
-/* Main content scrolls naturally */
-.main-content {
-  flex: 3;
-  min-width: 0; /* Prevent overflow */
-  overflow-y: auto;
-  max-height: 100vh;
-  padding-right: 1rem;
-}
-
-/* Sidebar scrolls naturally with page and is sticky */
-.sidebar-section {
-  flex: 1;
-  position: sticky;
-  top: 1.5rem;
-  align-self: flex-start;
-  max-height: calc(100vh - 3rem);
-  overflow-y: auto;
-  background: #fff;
-  border-radius: 1.3rem;
-  box-shadow: 0 2px 14px #2d44a01a;
-  padding: 2rem 1.2rem 1rem 1.6rem;
-  margin-bottom: 2rem;
-}
-
-/* Optional: scrollbar style for sidebar */
+/* Optional: Custom scrollbar for sidebar only */
 .sidebar-section::-webkit-scrollbar {
   width: 8px;
 }
-
 .sidebar-section::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 4px;
-}
-
-/* Responsive fix: Sidebar margin on smaller screens */
-@media (max-width: 991px) {
-  .sidebar-section {
-    margin-top: 2rem;
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-  .container {
-    flex-direction: column;
-  }
 }
