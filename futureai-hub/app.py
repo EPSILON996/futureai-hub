@@ -275,14 +275,17 @@ def subscribe():
     email = request.form.get('email', '').strip()
     if not email:
         return jsonify({'status': 'fail', 'message': 'Please provide an email address.'}), 400
+
+    # Check if already subscribed (replace Subscriber with your model)
     if Subscriber.query.filter_by(email=email).first():
         return jsonify({'status': 'fail', 'message': 'This email is already subscribed.'}), 400
 
+    # Save new subscriber
     subscriber = Subscriber(email=email)
     db.session.add(subscriber)
     db.session.commit()
 
-    send_welcome_email(email)
+    send_welcome_email(email)  # Your email function here
 
     return jsonify({'status': 'success', 'message': 'Subscription successful! Please check your inbox.'}), 200
 
@@ -312,4 +315,5 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
+
 
