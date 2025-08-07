@@ -8,7 +8,7 @@ body {
   padding: 0;
 }
 
-/* Navbar with glass effect and blur */
+/* Navbar with glass effect */
 .navbar-glass {
   background: rgba(13,110,253,0.95);
   backdrop-filter: blur(12px);
@@ -63,12 +63,10 @@ body {
   box-sizing: border-box;
   padding: 1rem;
 }
-
 .main-content {
   flex: 3;
   min-width: 0;
 }
-
 .sidebar-section {
   flex: 1;
   position: sticky;
@@ -99,7 +97,7 @@ body {
   text-decoration: underline;
 }
 
-/* Article content */
+/* Article content styling preserving line breaks */
 .article-body {
   white-space: pre-line;
   font-family: 'Inter', Arial, sans-serif;
@@ -114,7 +112,7 @@ body {
   box-shadow: 0 2px 16px #1656af08;
 }
 
-/* Blockquote styles */
+/* Blockquote styling */
 .blockquote {
   font-size: 1.1em;
   font-style: italic;
@@ -123,14 +121,14 @@ body {
   padding-left: 1rem;
 }
 
-/* Image styles */
+/* Image responsiveness */
 .img-fluid {
   max-width: 100%;
   height: auto;
   object-fit: cover;
 }
 
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 991px) {
   .main-layout {
     flex-direction: column;
@@ -157,7 +155,7 @@ footer {
   user-select: none;
 }
 
-/* Scrollbar */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   background: #f0f4fa;
   width: 8px;
@@ -167,7 +165,7 @@ footer {
   border-radius: 4px;
 }
 
-/* Glowing heading */
+/* Glowing heading animation */
 .glow-animate {
   background: linear-gradient(270deg,
     #ffcb52,
@@ -199,7 +197,7 @@ footer {
   100% { background-position: 110% 50%; }
 }
 
-/* Subtitle glow */
+/* Subtitle glow effect */
 .radiant-desc-glow {
   animation: subtitleGlow 1.3s linear infinite alternate;
   color: #fffdec;
