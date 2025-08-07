@@ -36,11 +36,7 @@ body {
   position: relative;
   z-index: 2;
   padding: 3.5rem 1rem 2rem 1rem;
-}
-
-/* Main news grid margin */
-.main-news-grid {
-  margin-bottom: 2.5rem;
+  text-align: center;
 }
 
 /* Card styles */
@@ -48,8 +44,8 @@ body {
   border-radius: 1.25rem;
   box-shadow: 0 8px 36px #145c8b18;
   border: none;
-  transition: box-shadow 0.13s ease-in-out;
   background: #fff;
+  transition: box-shadow 0.13s ease-in-out;
 }
 .card-wide:hover {
   box-shadow: 0 16px 50px #25499b2c;
@@ -58,7 +54,7 @@ body {
   border-radius: 1.3rem !important;
 }
 
-/* --- FIXED: Main Layout --- */
+/* Two-column layout */
 .main-layout {
   display: flex;
   gap: 2rem;
@@ -73,13 +69,12 @@ body {
   min-width: 0;
 }
 
-/* Sidebar styles (now sticky & flex-friendly) */
 .sidebar-section {
   flex: 1;
   position: sticky;
-  top: 1.5rem;
+  top: 85px;
   align-self: flex-start;
-  max-height: calc(100vh - 3rem);
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
   background: #fff;
   border-radius: 1.3rem;
@@ -88,10 +83,9 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Recent articles list more compact */
+/* Sidebar list styling */
 .sidebar-section ul {
-  list-style-type: disc;
-  margin-left: 1.5em;
+  list-style-type: none;
   padding-left: 0;
 }
 .sidebar-section li {
@@ -105,16 +99,7 @@ body {
   text-decoration: underline;
 }
 
-/* Search input styling */
-.search {
-  border-radius: 22px;
-  background: #fafaff;
-  border: 1px solid #c6e0fe;
-  padding: 0.45rem 1rem;
-  font-size: 1rem;
-}
-
-/* Article Font & Design Improvements */
+/* Article font and design */
 .article-body, .post-content {
   font-family: 'Inter', Arial, sans-serif;
   font-size: 18px;
@@ -128,7 +113,7 @@ body {
   box-shadow: 0 2px 16px #1656af08;
 }
 
-.article-body h2, .article-body h3, .post-content h2, .post-content h3 {
+.article-body h2, .post-content h2 {
   font-size: 24px;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -144,29 +129,30 @@ body {
   text-decoration: none;
 }
 
-/* Responsive fix: mobile column stacking */
+/* Responsive */
 @media (max-width: 991px) {
   .main-layout {
     flex-direction: column;
   }
   .sidebar-section {
-    margin-top: 2rem;
     position: static;
     max-height: none;
     overflow: visible;
+    margin-top: 2rem;
   }
 }
 
-/* Footer */
+/* Footer styling */
 footer {
   border-top: 1.5px solid #e3e5ef;
   color: #6c7293;
   font-size: 0.98rem;
   padding: 1rem 0;
+  text-align: center;
   user-select: none;
 }
 
-/* Scrollbar styles */
+/* Scrollbar */
 ::-webkit-scrollbar {
   background: #f0f4fa;
   width: 8px;
@@ -176,7 +162,7 @@ footer {
   border-radius: 4px;
 }
 
-/* Glowing, color-flowing heading text */
+/* Glowing heading */
 .glow-animate {
   background: linear-gradient(270deg,
     #ffcb52,
@@ -208,7 +194,7 @@ footer {
   100% { background-position: 110% 50%; }
 }
 
-/* Subtitle glowing/pulsing effect */
+/* Subtitle glow effect */
 .radiant-desc-glow {
   animation: subtitleGlow 1.3s linear infinite alternate;
   color: #fffdec;
@@ -221,13 +207,4 @@ footer {
   0%   { text-shadow: 0 0 3px #f4e5b2, 0 0 8px #42d8e257;}
   70%  { text-shadow: 0 0 15px #ffe89f, 0 0 30px #23bfffaa;}
   100% { text-shadow: 0 0 7px #f4e5b2, 0 0 22px #77a6fa99;}
-}
-
-/* Optional: Custom scrollbar for sidebar only */
-.sidebar-section::-webkit-scrollbar {
-  width: 8px;
-}
-.sidebar-section::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
 }
