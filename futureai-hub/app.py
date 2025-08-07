@@ -18,7 +18,7 @@ DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Secret key for sessions and CSRF protection
+# Secure secret key for sessions and CSRF protection
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -46,32 +46,27 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys loaded securely from environment variables
+# API keys via environment variables
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_37394367ea33be6bbe3bd4d040f6f79d3a0d')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '4fc7273b6b7b544697d35a6817135fdf')
 GUARDIAN_KEY = os.environ.get('GUARDIAN_KEY', 'd53ef06b-46c1-4273-8c83-77c51dc07696')
 
 def clean_html_content(raw_html: str) -> str:
-    """Clean HTML input preserving paragraphs and line breaks."""
     if not raw_html:
         return ""
     soup = BeautifulSoup(raw_html, "html.parser")
 
-    # Remove unwanted tags
     for tag in soup(['script', 'style', 'iframe', 'noscript', 'header', 'footer']):
         tag.decompose()
 
-    # Replace <br> tags with newline characters
     for br in soup.find_all("br"):
         br.replace_with("\n")
-    # Insert double newlines after paragraphs for spacing
     for p in soup.find_all("p"):
         p.insert_after("\n\n")
 
     text = soup.get_text(separator='', strip=True)
 
-    # Collapse multiple empty lines
     lines = [line.strip() for line in text.splitlines()]
     filtered_lines = []
     last_was_empty = False
@@ -85,6 +80,8 @@ def clean_html_content(raw_html: str) -> str:
             last_was_empty = False
 
     return '\n'.join(filtered_lines)
+
+# Fetching functions for external news data (same as before)...
 
 def fetch_newsapi_articles():
     url = f"https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey={NEWSAPI_KEY}"
