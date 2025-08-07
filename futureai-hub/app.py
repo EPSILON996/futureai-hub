@@ -27,7 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Secret key for session and CSRF protection. Change to a secure secret key in production.
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '12345678')
 
 db = SQLAlchemy(app)
 
@@ -319,3 +319,4 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)  # Keep debug=True during development; turn off in production
+
