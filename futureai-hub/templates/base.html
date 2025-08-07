@@ -131,6 +131,43 @@
       85% { background-position: 100% 80%; }
       100% { background-position: 110% 50%; }
     }
+
+    /* Floating auth/admin buttons styling */
+    .floating-btn {
+      position: fixed;
+      right: 20px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 24px;
+      z-index: 1050;
+      user-select: none;
+    }
+    .floating-btn.login-btn {
+      background: #ffc107; /* yellow */
+      bottom: 80px;
+    }
+    .floating-btn.signup-btn {
+      background: #198754; /* green */
+      bottom: 20px;
+    }
+    .floating-btn.logout-btn {
+      background: #dc3545; /* red */
+      bottom: 80px;
+    }
+    .floating-btn.admin-btn {
+      background: #0d6efd; /* Bootstrap blue */
+      bottom: 20px;
+    }
+    .floating-btn:hover {
+      filter: brightness(0.85);
+    }
   </style>
 </head>
 <body>
@@ -244,6 +281,26 @@ document.getElementById('subscribe-form').addEventListener('submit', function(e)
   });
 });
 </script>
+
+<!-- Floating authentication/admin buttons -->
+
+{% if not current_user.is_authenticated %}
+  <a href="{{ url_for('login') }}" 
+     class="floating-btn login-btn" 
+     title="Login" aria-label="Login">🔐</a>
+  <a href="{{ url_for('signup') }}" 
+     class="floating-btn signup-btn" 
+     title="Sign Up" aria-label="Sign Up">✍️</a>
+{% else %}
+  {% if current_user.is_admin %}
+    <a href="{{ url_for('admin.index') }}" 
+       class="floating-btn admin-btn" 
+       title="Admin Dashboard" aria-label="Admin Dashboard">🛠️</a>
+  {% endif %}
+  <a href="{{ url_for('logout') }}" 
+     class="floating-btn logout-btn" 
+     title="Logout" aria-label="Logout">🔓</a>
+{% endif %}
 
 </body>
 </html>
