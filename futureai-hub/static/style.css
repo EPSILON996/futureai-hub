@@ -99,38 +99,38 @@ body {
   text-decoration: underline;
 }
 
-/* Article font and design */
-.article-body, .post-content {
+/* Article content styling with preserved line breaks */
+.article-body {
+  white-space: pre-line;
   font-family: 'Inter', Arial, sans-serif;
   font-size: 18px;
   line-height: 1.7;
   color: #222;
-  padding: 1.2rem 1.5rem;
+  padding: 1.5rem 2rem;
   max-width: 800px;
   margin: 0 auto 2rem auto;
   background-color: #fff;
   border-radius: 1rem;
   box-shadow: 0 2px 16px #1656af08;
-  white-space: pre-line;
 }
 
-.article-body h2, .post-content h2 {
-  font-size: 24px;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: #1256bf;
+/* Blockquote styling */
+.blockquote {
+  font-size: 1.1em;
+  font-style: italic;
+  color: #555;
+  border-left: 4px solid #1656af;
+  padding-left: 1rem;
 }
 
-.article-body a, .post-content a {
-  color: #2065d2;
-  text-decoration: underline;
-}
-.article-body a:hover, .post-content a:hover {
-  color: #1656af;
-  text-decoration: none;
+/* Image styles */
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 991px) {
   .main-layout {
     flex-direction: column;
@@ -140,6 +140,10 @@ body {
     max-height: none;
     overflow: visible;
     margin-top: 2rem;
+  }
+  .article-body {
+    padding: 1rem 1rem;
+    max-width: 100%;
   }
 }
 
@@ -153,7 +157,7 @@ footer {
   user-select: none;
 }
 
-/* Scrollbar */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   background: #f0f4fa;
   width: 8px;
