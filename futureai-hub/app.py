@@ -65,7 +65,7 @@ MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd2
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'geopolitics.finance@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'jgjpzjngtjfefueh')  # Remove spaces if any
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'Mayur@123')  # Remove spaces if any
 
 # HTML content cleaner preserving paragraphs and line breaks
 def clean_html_content(raw_html: str) -> str:
@@ -312,3 +312,4 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
+
