@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - FutureAI Hub{% endblock %}
+{% block hero %}{% endblock %}
+{% block content %}
+<article>
+  <header class="mb-4">
+    <h1 class="fw-bold">{{ post.title }}</h1>
+    <p class="text-muted small">
+      Published on {{ post.timestamp.strftime('%B %d, %Y') }}
+      {% if post.is_imported %}
+        | <span class="badge bg-warning text-dark">{{ post.source_name or "Syndicated" }}</span>
+      {% endif %}
+    </p>
+  </header>
+  {% if post.image_url %}
+    <img src="{{ post.image_url }}" alt="{{ post.title }}" class="img-fluid rounded-4 shadow mb-4" />
+  {% else %}
+    <img src="{{ url_for('static', filename='default-cover.jpg') }}" alt="Default cover" class="img-fluid rounded-4 mb-4" />
+  {% endif %}
+  {% if post.summary %}
+    <blockquote class="blockquote my-4 py-2 px-3 bg-light rounded-4">{{ post.summary }}</blockquote>
+  {% endif %}
+  <section style="white-space: pre-line; font-size:1.07em;">
+    {{ post.body }}
+  </section>
+  {% if post.is_imported and post.source_url %}
+    <div class="my-4 text-end">
+      <a href="{{ post.source_url }}" class="btn btn-outline-secondary btn-sm rounded-pill" target="_blank" rel="noopener">Source & Credits</a>
+    </div>
+  {% endif %}
+  <div class="mt-4">
+    <h6>Share this article:</h6>
+    <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post.title | urlencode }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm me-1 rounded-pill">Twitter</a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm me-1 rounded-pill">Facebook</a>
+    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.url }}&title={{ post.title | urlencode }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm rounded-pill">LinkedIn</a>
+  </div>
+</article>
+{% endblock %}
