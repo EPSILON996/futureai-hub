@@ -21,7 +21,7 @@ DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Secret key for session and CSRF
+# Secret key for session and CSRF - set securely in environment for production
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -56,18 +56,17 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys loaded securely or fallbacks
+# API keys loaded securely via environment variables or defaults
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
 
-# Gmail SMTP configuration (store EMAIL_ADDRESS, EMAIL_PASSWORD in env ideally)
+# Gmail SMTP configuration - use env variables for security
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'geopolitics.finance@gmail.com')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'Mayur@123')  # Remove spaces if any
 
-# HTML content cleaner preserving paragraphs and line breaks
 def clean_html_content(raw_html: str) -> str:
     if not raw_html:
         return ""
@@ -92,7 +91,6 @@ def clean_html_content(raw_html: str) -> str:
             last_empty = False
     return '\n'.join(filtered)
 
-# News API fetch functions
 def fetch_newsapi_articles():
     url = f"https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey={NEWSAPI_KEY}"
     try:
@@ -147,7 +145,6 @@ def fetch_mediastack_articles():
     except Exception as e:
         print(f"MediaStack fetch error: {e}")
 
-# Import articles from sources into DB
 def import_external_articles():
     added = 0
     for fetcher in [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles]:
@@ -175,7 +172,6 @@ def import_external_articles():
         db.session.commit()
     print(f"[Scheduler] Imported {added} new articles.")
 
-# Email sending helpers
 def send_email(to_email, subject, body):
     msg = MIMEMultipart()
     msg['From'] = EMAIL_ADDRESS
@@ -221,11 +217,10 @@ def send_newsletter():
     for subscriber in subscribers:
         send_email(subscriber.email, subject, html_content)
 
-# Routes
 @app.route('/')
 def home():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    recent_posts = posts  # showing all recent posts, no limit
+    recent_posts = posts
     return render_template("home.html", posts=posts, recent_posts=recent_posts)
 
 @app.route('/post/<int:post_id>')
@@ -250,6 +245,8 @@ def new_post():
             db.session.add(post)
             db.session.commit()
             flash("New article published!", "success")
+            # Optionally send newsletter here if you want:
+            # send_newsletter()
             return redirect(url_for('home'))
         except Exception as e:
             db.session.rollback()
@@ -275,18 +272,13 @@ def subscribe():
     email = request.form.get('email', '').strip()
     if not email:
         return jsonify({'status': 'fail', 'message': 'Please provide an email address.'}), 400
-
-    # Check if already subscribed (replace Subscriber with your model)
     if Subscriber.query.filter_by(email=email).first():
         return jsonify({'status': 'fail', 'message': 'This email is already subscribed.'}), 400
 
-    # Save new subscriber
     subscriber = Subscriber(email=email)
     db.session.add(subscriber)
     db.session.commit()
-
-    send_welcome_email(email)  # Your email function here
-
+    send_welcome_email(email)
     return jsonify({'status': 'success', 'message': 'Subscription successful! Please check your inbox.'}), 200
 
 @app.errorhandler(404)
@@ -295,14 +287,8 @@ def page_not_found(e):
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        func=import_external_articles,
-        trigger='interval',
-        hours=6,
-        id='import_articles_task',
-        replace_existing=True,
-    )
-    # Optionally add a scheduled newsletter sending job (e.g., daily)
+    scheduler.add_job(func=import_external_articles, trigger='interval', hours=6, id='import_articles_task', replace_existing=True)
+    # Uncomment next line to send newsletter daily at 8 am
     # scheduler.add_job(func=send_newsletter, trigger='cron', hour=8, id='send_newsletter_task')
     scheduler.start()
     print("[Scheduler] Scheduler started.")
@@ -315,5 +301,3 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
-
-
