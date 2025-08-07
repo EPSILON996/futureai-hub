@@ -18,7 +18,6 @@ DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Secret Key for sessions and CSRF protection
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -158,8 +157,6 @@ def import_external_articles():
         db.session.commit()
     print(f"[Scheduler] Imported {added} new articles from all sources.")
 
-# Routes
-
 @app.route('/')
 def home():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
@@ -208,7 +205,6 @@ def search():
 def page_not_found(e):
     return render_template('404.html'), 404
 
-# Scheduler to fetch external articles every 6 hours
 def start_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.add_job(
@@ -221,7 +217,7 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# === Must run every start to ensure tables present and at least one import ===
+# === Ensure tables and import articles at every boot ===
 with app.app_context():
     db.create_all()
     import_external_articles()
