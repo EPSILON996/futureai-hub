@@ -48,8 +48,9 @@ class PostForm(FlaskForm):
 
 # API keys (replace with environment variables or your keys)
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
-NEWSDATA_API_KEY = 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61'  # Your provided NewsData.io key
-MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', 'your_mediastack_key_here')
+NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
+ # Your provided NewsData.io key
+MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
 # Guardian API is disabled (no key / no calls)
 
 def clean_html_content(raw_html: str) -> str:
@@ -248,3 +249,4 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
+
