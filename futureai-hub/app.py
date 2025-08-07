@@ -149,22 +149,95 @@ def clean_html_content(raw_html: str) -> str:
             last_empty = False
     return '\n'.join(filtered_lines)
 
-# --- Placeholders for your existing news fetch functions ---
 def fetch_newsapi_articles():
-    # Insert your working code for fetching from NewsAPI here
-    pass
+    url = f"https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey={NEWSAPI_KEY}"
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        for art in data.get('articles', []):
+            yield {
+                "title": art.get("title", "Untitled")[:200],
+                "summary": clean_html_content(art.get("description")),
+                "body": clean_html_content(art.get("content") or art.get("description")),
+                "image_url": art.get("urlToImage"),
+                "source_url": art.get("url"),
+                "source_name": "NewsAPI",
+            }
+    except Exception as e:
+        logging.error(f"NewsAPI fetch error: {e}")
 
 def fetch_newsdata_articles():
-    # Insert your working code for fetching from NewsData.io here
-    pass
+    url = f"https://newsdata.io/api/1/news?apikey={NEWSDATA_API_KEY}&category=technology,science&language=en"
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        for art in data.get('results', []):
+            yield {
+                "title": art.get("title", "Untitled")[:200],
+                "summary": clean_html_content(art.get("description")),
+                "body": clean_html_content(art.get("content") or art.get("description")),
+                "image_url": art.get("image_url") or art.get("image"),
+                "source_url": art.get("link"),
+                "source_name": "NewsData.io",
+            }
+    except Exception as e:
+        logging.error(f"NewsData.io fetch error: {e}")
 
 def fetch_mediastack_articles():
-    # Insert your working code for fetching from MediaStack here
-    pass
+    url = f"http://api.mediastack.com/v1/news?access_key={MEDIASTACK_KEY}&categories=technology,science&languages=en"
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        for art in data.get('data', []):
+            yield {
+                "title": art.get("title", "Untitled")[:200],
+                "summary": clean_html_content(art.get("description")),
+                "body": clean_html_content(art.get("description")),
+                "image_url": art.get("image"),
+                "source_url": art.get("url"),
+                "source_name": "MediaStack",
+            }
+    except Exception as e:
+        logging.error(f"MediaStack fetch error: {e}")
 
 def import_external_articles():
-    # Insert your existing import_articles logic here
-    pass
+    added = 0
+    for fetcher in [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles]:
+        if not fetcher:
+            continue
+        for art in fetcher():
+            if not art:
+                continue
+            url = art.get('source_url')
+            if not url or Post.query.filter_by(source_url=url).first():
+                continue
+            post = Post(
+                title=art.get('title', "Untitled"),
+                summary=art.get('summary') or "",
+                body=art.get('body') or "",
+                image_url=art.get('image_url'),
+                source_url=url,
+                timestamp=datetime.utcnow(),
+                is_imported=True,
+                source_name=art.get('source_name', 'Unknown'),
+            )
+            try:
+                db.session.add(post)
+                added += 1
+            except Exception as e:
+                logging.error(f"DB add post error: {e}")
+    if added > 0:
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"DB commit error: {e}")
+    logging.info(f"[Scheduler] Imported {added} new articles.")
+
+
 
 # -----------------------------------------------------------
 # Email handling functions
@@ -389,3 +462,4 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)  # Turn off debug=True in production
+
