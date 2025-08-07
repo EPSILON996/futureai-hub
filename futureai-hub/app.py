@@ -12,11 +12,13 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
-# Absolute path for SQLite DB (avoid deployment/path bugs)
+# Absolute path for SQLite DB – ensure same DB used everywhere to avoid "no such table" errors
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Secret key for session and CSRF protection; set via env var in production
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
 
 db = SQLAlchemy(app)
@@ -44,7 +46,7 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys from environment
+# API Keys from environment variables; replace with valid keys before deployment
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_37394367ea33be6bbe3bd4d040f6f79d3a0d')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '4fc7273b6b7b544697d35a6817135fdf')
@@ -54,9 +56,15 @@ def clean_html_content(raw_html: str) -> str:
     if not raw_html:
         return ""
     soup = BeautifulSoup(raw_html, "html.parser")
+    # Remove unwanted tags
     for tag in soup(['script', 'style', 'iframe', 'noscript', 'header', 'footer']):
         tag.decompose()
+    # Preserve paragraphs as line breaks
+    text = ''
+    for elem in soup.find_all(['p', 'br']):
+        elem.append('\n')
     text = soup.get_text(separator='\n', strip=True)
+    # Clean multiple blank lines
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     return '\n'.join(lines)
 
@@ -216,7 +224,7 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# --- Always ensuring tables and initial article import on boot ---
+# Initialize tables and import on every app start
 with app.app_context():
     db.create_all()
     import_external_articles()
