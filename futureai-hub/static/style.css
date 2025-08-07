@@ -8,13 +8,13 @@ body {
   padding: 0;
 }
 
-/* Navbar with glass effect and blur */
+/* Navbar glass effect */
 .navbar-glass {
   background: rgba(13,110,253,0.95);
   backdrop-filter: blur(12px);
 }
 
-/* Hero section */
+/* Hero styles */
 .hero-gradient {
   background: linear-gradient(120deg, #1656af 70%, #6f42c1 98%);
   color: #fff;
@@ -63,12 +63,10 @@ body {
   box-sizing: border-box;
   padding: 1rem;
 }
-
 .main-content {
   flex: 3;
   min-width: 0;
 }
-
 .sidebar-section {
   flex: 1;
   position: sticky;
@@ -83,7 +81,7 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Sidebar list styling */
+/* Sidebar styling */
 .sidebar-section ul {
   list-style-type: none;
   padding-left: 0;
@@ -99,7 +97,7 @@ body {
   text-decoration: underline;
 }
 
-/* Article content styling with preserved line breaks */
+/* Article content */
 .article-body {
   white-space: pre-line;
   font-family: 'Inter', Arial, sans-serif;
@@ -114,7 +112,7 @@ body {
   box-shadow: 0 2px 16px #1656af08;
 }
 
-/* Blockquote styling */
+/* Blockquote styles */
 .blockquote {
   font-size: 1.1em;
   font-style: italic;
@@ -130,7 +128,7 @@ body {
   object-fit: cover;
 }
 
-/* Responsive adjustments */
+/* Responsive layout */
 @media (max-width: 991px) {
   .main-layout {
     flex-direction: column;
@@ -157,7 +155,7 @@ footer {
   user-select: none;
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 ::-webkit-scrollbar {
   background: #f0f4fa;
   width: 8px;
@@ -199,7 +197,7 @@ footer {
   100% { background-position: 110% 50%; }
 }
 
-/* Subtitle glow effect */
+/* Subtitle glow */
 .radiant-desc-glow {
   animation: subtitleGlow 1.3s linear infinite alternate;
   color: #fffdec;
