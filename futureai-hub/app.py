@@ -245,7 +245,6 @@ def new_post():
             db.session.add(post)
             db.session.commit()
             flash("New article published!", "success")
-            # Optionally call send_newsletter() here to notify subscribers
             return redirect(url_for('home'))
         except Exception as e:
             db.session.rollback()
@@ -308,3 +307,4 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)
+
