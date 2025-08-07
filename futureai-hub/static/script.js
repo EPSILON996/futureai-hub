@@ -1,73 +1,63 @@
-window.onload = fetchStudents;
+// script.js
 
-document.getElementById('studentForm').onsubmit = async function(e) {
-    e.preventDefault();
-    const name  = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const age   = parseInt(document.getElementById('age').value);
+document.addEventListener('DOMContentLoaded', function() {
 
-    const resultDiv = document.getElementById('result');
-    resultDiv.textContent = '';
-
-    if (!name || !email || !age) {
-        resultDiv.textContent = "All fields are required!";
-        resultDiv.style.color = 'red';
-        return;
-    }
-
-    const resp = await fetch('/add_student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, age }),
+  // Smooth scrolling for internal anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetElement = document.querySelector(this.getAttribute('href'));
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      }
     });
-    const data = await resp.json();
-    if (data.success) {
-        resultDiv.textContent = data.message;
-        resultDiv.style.color = 'green';
-        fetchStudents();
-        document.getElementById('studentForm').reset();
-    } else {
-        resultDiv.textContent = data.message;
-        resultDiv.style.color = 'red';
-    }
-};
+  });
 
-async function fetchStudents() {
-    const resp = await fetch('/list_students');
-    const students = await resp.json();
-    const tbody = document.querySelector('#studentsTable tbody');
-    tbody.innerHTML = '';
-    for (const student of students) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${student.name}</td>
-                        <td>${student.email}</td>
-                        <td>${student.age}</td>
-                        <td>${student.registration_date}</td>
-                        <td><button onclick="deleteStudent('${student.email.replace(/'/g, "\\'")}')">Delete</button></td>`;
-        tbody.appendChild(tr);
-    }
-}
-
-async function deleteStudent(email) {
-    if (!confirm("Are you sure you want to delete this student?")) return;
-    const resp = await fetch('/delete_student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+  // Collapse navbar menu on small screens when link clicked
+  const navLinks = document.querySelectorAll('.navbar-collapse .nav-link');
+  const navbarCollapse = document.querySelector('.navbar-collapse');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function () {
+      if (navbarCollapse.classList.contains('show')) {
+        // Bootstrap 5 uses collapse instance; trigger collapse programmatically
+        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+        if (bsCollapse) {
+          bsCollapse.hide();
+        }
+      }
     });
-    const data = await resp.json();
-    const resultDiv = document.getElementById('result');
-    if (data.success) {
-        resultDiv.textContent = data.message;
-        resultDiv.style.color = 'green';
-        fetchStudents();
-    } else {
-        resultDiv.textContent = data.message;
-        resultDiv.style.color = 'red';
-    }
-}
-// Simple confirmation for deletions
-function confirmDelete() {
-  return confirm("Are you sure you want to delete this student?");
-}
+  });
 
+  // Optional: Back to top button
+  const backToTopBtn = document.createElement('button');
+  backToTopBtn.id = 'back-to-top';
+  backToTopBtn.textContent = '↑';
+  Object.assign(backToTopBtn.style, {
+    position: 'fixed',
+    bottom: '30px',
+    right: '30px',
+    padding: '0.5rem 0.8rem',
+    fontSize: '1.5rem',
+    borderRadius: '50%',
+    border: 'none',
+    background: '#0d6efd',
+    color: '#fff',
+    cursor: 'pointer',
+    display: 'none',
+    zIndex: 1000,
+  });
+  document.body.appendChild(backToTopBtn);
+
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      backToTopBtn.style.display = 'block';
+    } else {
+      backToTopBtn.style.display = 'none';
+    }
+  });
+
+});
