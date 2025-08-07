@@ -56,16 +56,16 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API keys loaded securely via environment variables or defaults
+# API keys loaded securely via environment variables or with sensible fallbacks:
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
 
-# Gmail SMTP configuration - use env variables for security
+# Gmail SMTP configuration - recommended to store these in environment variables
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'geopolitics.finance@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'Mayur@123')  # Remove spaces if any
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'tisfzpmzsctrginw')  # Your app password without spaces
 
 def clean_html_content(raw_html: str) -> str:
     if not raw_html:
@@ -245,8 +245,7 @@ def new_post():
             db.session.add(post)
             db.session.commit()
             flash("New article published!", "success")
-            # Optionally send newsletter here if you want:
-            # send_newsletter()
+            # Optionally call send_newsletter() here to notify subscribers
             return redirect(url_for('home'))
         except Exception as e:
             db.session.rollback()
@@ -278,7 +277,9 @@ def subscribe():
     subscriber = Subscriber(email=email)
     db.session.add(subscriber)
     db.session.commit()
+
     send_welcome_email(email)
+
     return jsonify({'status': 'success', 'message': 'Subscription successful! Please check your inbox.'}), 200
 
 @app.errorhandler(404)
@@ -287,9 +288,15 @@ def page_not_found(e):
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=import_external_articles, trigger='interval', hours=6, id='import_articles_task', replace_existing=True)
-    # Uncomment next line to send newsletter daily at 8 am
-    # scheduler.add_job(func=send_newsletter, trigger='cron', hour=8, id='send_newsletter_task')
+    scheduler.add_job(
+        func=import_external_articles,
+        trigger='interval',
+        hours=6,
+        id='import_articles_task',
+        replace_existing=True
+    )
+    # Uncomment to schedule daily newsletters
+    # scheduler.add_job(func=send_newsletter, trigger='cron', hour=8, id='newsletter_daily_job')
     scheduler.start()
     print("[Scheduler] Scheduler started.")
 
