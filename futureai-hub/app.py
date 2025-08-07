@@ -212,9 +212,10 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# >>> FIX: Always create tables on app start <<<
+# Always create tables on new environment/app boot
 with app.app_context():
     db.create_all()
+
 
 if __name__ == '__main__':
     import_external_articles()
