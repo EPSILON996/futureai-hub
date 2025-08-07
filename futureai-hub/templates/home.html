@@ -10,9 +10,9 @@
       <div class="card card-wide mb-4 w-100 rounded-4 shadow-sm d-flex flex-column">
         <div class="position-relative" style="min-height: 140px;">
           {% if post.image_url %}
-            <img src="{{ post.image_url }}" class="card-img-top rounded-4-top" alt="{{ post.title }}" style="height: 140px; object-fit: cover;">
+            <img src="{{ post.image_url }}" class="card-img-top rounded-4-top" alt="{{ post.title }}" style="height: 140px; object-fit: cover;" />
           {% else %}
-            <img src="{{ url_for('static', filename='default-cover.jpg') }}" class="card-img-top rounded-4-top" alt="Default cover" style="height: 140px; object-fit: cover;">
+            <img src="{{ url_for('static', filename='default-cover.jpg') }}" class="card-img-top rounded-4-top" alt="Default cover" style="height: 140px; object-fit: cover;" />
           {% endif %}
           {% if post.is_imported %}
             <span class="badge bg-info text-dark position-absolute top-0 end-0 m-2">
