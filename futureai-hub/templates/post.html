@@ -14,19 +14,23 @@
       {% endif %}
     </p>
   </header>
+
   {% if post.image_url %}
     <img src="{{ post.image_url }}" alt="{{ post.title }}" class="img-fluid rounded-4 shadow mb-4" />
   {% else %}
     <img src="{{ url_for('static', filename='default-cover.jpg') }}" alt="Default cover" class="img-fluid rounded-4 mb-4" />
   {% endif %}
+
   {% if post.summary %}
     <blockquote class="blockquote my-4 py-3 px-4 bg-light rounded-4 fst-italic">
       {{ post.summary }}
     </blockquote>
   {% endif %}
-  <section class="article-body" style="white-space: pre-line; font-size: 1.1em; color: #333;">
+
+  <section class="article-body" style="white-space: pre-line;">
     {{ post.body | safe }}
   </section>
+
   {% if post.is_imported and post.source_url %}
     <div class="my-4 text-end">
       <a href="{{ post.source_url }}" class="btn btn-outline-secondary btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" aria-label="Go to original source">
@@ -34,6 +38,7 @@
       </a>
     </div>
   {% endif %}
+
   <div class="mt-5">
     <h6>Share this article:</h6>
     <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post.title | urlencode }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm me-2 rounded-pill" aria-label="Share on Twitter">Twitter</a>
