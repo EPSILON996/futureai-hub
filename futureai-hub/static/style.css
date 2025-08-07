@@ -8,13 +8,13 @@ body {
   padding: 0;
 }
 
-/* Navbar glass effect */
+/* Navbar with glass effect and blur */
 .navbar-glass {
   background: rgba(13,110,253,0.95);
   backdrop-filter: blur(12px);
 }
 
-/* Hero styles */
+/* Hero section */
 .hero-gradient {
   background: linear-gradient(120deg, #1656af 70%, #6f42c1 98%);
   color: #fff;
@@ -63,10 +63,12 @@ body {
   box-sizing: border-box;
   padding: 1rem;
 }
+
 .main-content {
   flex: 3;
   min-width: 0;
 }
+
 .sidebar-section {
   flex: 1;
   position: sticky;
@@ -81,7 +83,7 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Sidebar styling */
+/* Sidebar list styling */
 .sidebar-section ul {
   list-style-type: none;
   padding-left: 0;
@@ -128,7 +130,7 @@ body {
   object-fit: cover;
 }
 
-/* Responsive layout */
+/* Responsive */
 @media (max-width: 991px) {
   .main-layout {
     flex-direction: column;
