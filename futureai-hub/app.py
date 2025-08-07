@@ -39,7 +39,7 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API KEYS (set via env or place directly here)
+# API KEYS (prefer using env variables)
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_37394367ea33be6bbe3bd4d040f6f79d3a0d')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '4fc7273b6b7b544697d35a6817135fdf')
@@ -212,9 +212,11 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
+# >>> FIX: Always create tables on app start <<<
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        import_external_articles()
-        start_scheduler()
+    import_external_articles()
+    start_scheduler()
     app.run(debug=True)
