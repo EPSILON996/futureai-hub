@@ -11,10 +11,16 @@ from sqlalchemy import or_
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///blog.db')
 
+# === Setup absolute path for SQLite DB (ensure same DB used everywhere) ===
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(PROJECT_ROOT, "blog.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Secret key for session and CSRF protection
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secure-key-here')
+
 db = SQLAlchemy(app)
 
 @app.context_processor
@@ -40,7 +46,7 @@ class PostForm(FlaskForm):
     source_url = StringField('Source URL (optional)', validators=[Optional(), Length(max=350), URL(require_tld=False, message="Invalid URL")])
     submit = SubmitField('Publish')
 
-# API KEYS (prefer using env variables)
+# API keys (fetched securely from environment)
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '19d39af2cccc4fa0b3c70728bdc4f114')
 NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_37394367ea33be6bbe3bd4d040f6f79d3a0d')
 MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '4fc7273b6b7b544697d35a6817135fdf')
@@ -130,9 +136,8 @@ def fetch_guardian_articles():
         yield {"title": f"Error Guardian: {str(e)}", "summary": "", "body": "", "source_name": "The Guardian"}
 
 def import_external_articles():
-    sources = [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles, fetch_guardian_articles]
     added = 0
-    for fetcher in sources:
+    for fetcher in [fetch_newsapi_articles, fetch_newsdata_articles, fetch_mediastack_articles, fetch_guardian_articles]:
         for art in fetcher():
             url = art.get('source_url')
             if not url or Post.query.filter_by(source_url=url).first():
@@ -152,6 +157,8 @@ def import_external_articles():
     if added > 0:
         db.session.commit()
     print(f"[Scheduler] Imported {added} new articles from all sources.")
+
+# ROUTES
 
 @app.route('/')
 def home():
@@ -201,6 +208,7 @@ def search():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+# Scheduler to fetch new articles every 6 hours
 def start_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.add_job(
@@ -213,12 +221,13 @@ def start_scheduler():
     scheduler.start()
     print("[Scheduler] Article updater started.")
 
-# Always create tables on new environment/app boot
+# === IMPORTANT: Run these on every app start ===
 with app.app_context():
     db.create_all()
-
+    import_external_articles()  # Immediately import articles on every deploy/startup
 
 if __name__ == '__main__':
-    import_external_articles()
-    start_scheduler()
+    # For local development (with app context)
+    with app.app_context():
+        start_scheduler()
     app.run(debug=True)
