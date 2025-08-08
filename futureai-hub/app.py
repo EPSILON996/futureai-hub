@@ -114,13 +114,13 @@ class SignupForm(FlaskForm):
 # API keys and SMTP credentials
 
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', 'your_newsapi_key_here')
-NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY', 'pub_2b9b4717bfeb4d6e800bd5b91a8ddc61')
-MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY', '9dfd4c59b57df73b3bf47bf77bdd28f8')
+NEWSDATA_API_KEY = os.environ.get('NEWSDATA_API_KEY',  'your_newsapi_key_here')
+MEDIASTACK_KEY = os.environ.get('MEDIASTACK_KEY',  'your_newsapi_key_here')
 
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'geopolitics.finance@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'tisfzpmzsctrginw')  # Gmail app password, no spaces
+EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS', 'ENTER YOU GMAIL HERE')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'ENTER YOUR APP PASSWORD HERE')  # Gmail app password, no spaces
 
 # -----------------------------------------------------------
 # Utility functions
@@ -462,4 +462,5 @@ if __name__ == '__main__':
     with app.app_context():
         start_scheduler()
     app.run(debug=True)  # Turn off debug=True in production
+
 
